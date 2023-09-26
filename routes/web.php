@@ -41,3 +41,9 @@ Route::middleware([
         return Inertia::render('Resource'); // Assuming you have a Resources component
     })->name('resource');
 });
+
+//fetch preset exercise
+Route::get('/exercises', [WorkoutController::class, 'getExercises']);
+
+//store the user's exercise
+Route::post('/training-exercises', [WorkoutController::class, 'store']);

@@ -51,11 +51,11 @@ const logout = () => {
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')" class="flex-grow text-center text-3xl">
                                     Dashboard
                                 </NavLink>
+                                <NavLink :href="route('resource')" :active="route().current('resource')" class="flex-grow text-center text-3xl">
+                                    Resource
+                                </NavLink>
                                 <NavLink :href="route('record')" :active="route().current('record')" class="flex-grow text-center text-3xl">
                                     Record
-                                </NavLink>
-                                <NavLink :href="route('resource')" :active="route().current('resource')" class="flex-grow text-center text-3xl">
-                                    Resources
                                 </NavLink>
                             </div>
                         </div>
@@ -107,7 +107,6 @@ const logout = () => {
                                 </Dropdown>
                             </div>
                         </div>
-
                         <!-- Hamburger -->
                         <div class="-mr-2 flex items-center sm:hidden">
                             <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out" @click="showingNavigationDropdown = ! showingNavigationDropdown">
@@ -143,11 +142,11 @@ const logout = () => {
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('resource')" :active="route().current('resource')">
+                            Resource
+                        </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('record')" :active="route().current('record')">
                             Record
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('resource')" :active="route().current('resource')">
-                            Resources
                         </ResponsiveNavLink>
                     </div>
 
