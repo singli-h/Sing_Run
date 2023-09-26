@@ -32,4 +32,12 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::get('/record', function () {
+        return Inertia::render('Record'); // Assuming you have a Record component
+    })->name('record');
+    
+    Route::get('/resource', function () {
+        return Inertia::render('Resource'); // Assuming you have a Resources component
+    })->name('resource');
 });

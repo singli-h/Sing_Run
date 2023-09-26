@@ -1,6 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 
+const route = (name, params) => window.route(name, params);
+
 defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
@@ -12,12 +14,12 @@ defineProps({
     <Head title="Welcome" />
     <div class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
         <div v-if="canLogin" class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
-            <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</Link>
+            <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-lg font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</Link>
 
             <template v-else>
-                <Link :href="route('login')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</Link>
+                <Link :href="route('login')" class="text-lg font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</Link>
 
-                <Link v-if="canRegister" :href="route('register')" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</Link>
+                <Link v-if="canRegister" :href="route('register')" class="text-lg ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</Link>
             </template>
         </div>
 
@@ -30,13 +32,16 @@ defineProps({
 
             <div class="container mx-auto flex items-center justify-left h-screen">
             <div class="absolute left-20 w-1/2 text-white">
-                <h1 class="text-5xl font-bold mb-4">Welcome to My Fitness App</h1>
-                <p class="mb-4">
-                Discover the best fitness plans, track your workouts, and monitor your progress.
+                <h1 class="text-5xl font-bold mb-4">Welcome to 
+                    <br>
+                    <span class="text-yellow-500 text-6xl">Sprint Sage</span>
+                </h1>
+                <p class="mb-4 text-2xl">
+                We Help You Harness Your Speed - Train Smarter Not Harder!
                 </p>
                 <div class="mb-4">
-                <InertiaLink :href="route('register')" class="mr-4 bg-blue-500 text-white p-2 rounded">Register Now</InertiaLink>
-                <a href="https://external-link.com" target="_blank" class="bg-green-500 text-white p-2 rounded">Learn More</a>
+                <Link :href="route('dashboard')" class="text-3xl mr-4 bg-blue-500 text-white p-2 rounded hover:text-yellow-500 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Start Now</Link>
+                <a href="https://external-link.com" target="_blank" class="text-3xl bg-green-500 text-white p-2 rounded hover:text-yellow-500 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Learn More</a>
                 </div>
             </div>
             <div class="absolute w-1/2 right-0 flex items-center justify-center">
