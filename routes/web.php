@@ -53,3 +53,6 @@ Route::post('/api/exercises', [ExerciseController::class, 'store'])->name('exerc
 
 //store the user's training exercise
 Route::post('/api/training-exercises', [TrainingExerciseController::class, 'store'])->name('training-exercises');
+
+//get session time and user id
+Route::post('/api/getSession', [TrainingExerciseController::class, 'getSession'])->name('getSession');

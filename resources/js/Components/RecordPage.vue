@@ -36,7 +36,7 @@ const now = ref(''); // Initialize with a default value
 // Fetch the user ID and date-time when the component is mounted
 const fetchData = async () => {
     try {
-        const response = await axios.get('/api/get-user-and-time');
+        const response = await axios.get('/api/getSession');
         userId.value = response.data.userId;
         now.value = response.data.now;
     } catch (error) {
