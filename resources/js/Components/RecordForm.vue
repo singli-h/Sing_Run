@@ -1,9 +1,8 @@
 <template>
   <div class="container mx-auto p-4">
-        <table v-if="exercises.length > 0" class="min-w-full bg-white">
+        <table v-if="exercises.length > 0" class="min-w-full bg-white border">
           <thead>
             <tr>
-              <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 "></th>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Exercise</th>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Amount</th>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Unit</th>
@@ -11,37 +10,30 @@
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Delete</th>
             </tr>
           </thead>
-          <Draggable :list="exerciseRows" class="transition-group" tag="transition-group" @start="onStart($event)" @end="onEnd" name="fade">
-            <template #item="{ element, index }">
-              <tr :key="element ? element.id : index" class="bg-white">
-                <!--Draggable icon-->
-                <td class="py-2 px-1 border-b border-gray-200 cursor-move">
-                  <img src="/svgs/line-three.svg" alt="draggable">
-                  <i class="fa fa-bars"></i>
-                </td>
-                <!--Exercise option-->
-                <td class="py-2 px-4 border-b border-gray-200">
-                  <select v-model="element.selectedExercise" class="form-select">
-                    <option v-for="exercise in exercises" :key="exercise.id" :value="exercise.id">
-                      {{ exercise ? exercise.name : '' }}
-                    </option>
-                  </select>
-                </td>
-                <!--Amount input-->
-                <td class="py-2 px-4 border-b border-gray-200">
-                  <input type="text" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="getExerciseUnit(element.selectedExercise)" required>
-                </td>
-                <!--Exercise Unit-->
-                <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseUnit(element.selectedExercise) }}</td>
-                <!--Exercise Type-->
-                <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseType(element.selectedExercise) }}</td>
-                <!--delete button-->
-                <td class="py-2 px-4 border-b border-gray-200">
-                  <button @click="deleteRow(index)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">Delete</button>
-                </td>
-              </tr>
-            </template>
-          </Draggable>
+          <transition-group name="fade" tag="tbody">
+            <tr v-for="(element, index) in exerciseRows" :key="element.id" class="bg-white border">
+              <!--Exercise option-->
+              <td class="py-2 px-4 border-b border-gray-200">
+                <select v-model="element.selectedExercise" class="form-select">
+                  <option v-for="exercise in exercises" :key="exercise.id" :value="exercise.id">
+                    {{ exercise ? exercise.name : '' }}
+                  </option>
+                </select>
+              </td>
+              <!--Amount input-->
+              <td class="py-2 px-4 border-b border-gray-200">
+                <input type="number" id="amount" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="getExerciseUnit(element.selectedExercise)" required>
+              </td>
+              <!--Exercise Unit-->
+              <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseUnit(element.selectedExercise) }}</td>
+              <!--Exercise Type-->
+              <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseType(element.selectedExercise) }}</td>
+              <!--delete button-->
+              <td class="py-2 px-4 border-b border-gray-200">
+                <button @click="deleteRow(index)" class="bg-red-400 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">Delete</button>
+              </td>
+            </tr>
+          </transition-group>
         </table>
 
         <!-- Add/Delete and Submit Buttons -->
@@ -53,20 +45,18 @@
 </template>
 
 <script>
-import { ref, onMounted, computed,nextTick } from 'vue';
-import Draggable from 'vuedraggable';
+import { ref, onMounted, defineProps } from 'vue';
 import axios from 'axios';
 
 export default {
-  components: {
-    Draggable,
-  },
+
   setup() {
+    const props = defineProps({
+      session: String,
+      athlete: String,
+    });
     const exercises = ref([]);
     const exerciseRows = ref([]);
-    //State to track whether dragging is happening
-    const dragging = ref(false); 
-    const draggedIndex = ref(null);
 
     onMounted(async () => {
       try {
@@ -79,10 +69,6 @@ export default {
         } else {
           exerciseRows.value = exercises.value.map((_, index) => ({ selectedExercise: exercises.value[index]?.id }));
         }
-
-        console.log('exercise:', exerciseRows.value);
-
-
       } catch (error) {
         console.error('An error occurred while fetching exercises:', error);
       }
@@ -102,13 +88,6 @@ export default {
     localStorage.setItem('exerciseRows', JSON.stringify(exerciseRows.value));
     };
 
-    const onEnd = (event) => {
-      const movedItem = exerciseRows.value.splice(event.oldIndex, 1)[0];
-      exerciseRows.value.splice(event.newIndex, 0, movedItem);
-      dragging.value = false;
-      saveToLocalStorage();
-    };
-
     const addRow = () => {
       exerciseRows.value.push({
         id: Date.now(),
@@ -123,15 +102,17 @@ export default {
     };
 
     const submitForm = async () => {
-      // Convert the exerciseRows to the desired format for submission
-      const formData = exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise }));
+      // Convert the exerciseRows to the desired format for submission.
+      const formData = {
+        session: props.session,
+        athlete: props.athlete,
+        exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
+      };
       
       try {
-        await axios.post('/api/training-exercises', formData);
-        // Handle successful submission
+        await axios.post('/api/training-sessions', formData);
         console.log('Form submitted successfully');
-        //to do redirct to other pages
-        localStorage.removeItem('exerciseRows');
+        // Handle redirection or any other logic here.
       } catch (error) {
         console.error('An error occurred while submitting the form:', error);
       }
@@ -140,13 +121,11 @@ export default {
     return {
       exercises,
       exerciseRows,
-      onEnd,
       getExerciseUnit,
       getExerciseType,
       addRow,
       deleteRow,
       submitForm,
-      dragging,
     };
   },
 };
@@ -154,15 +133,12 @@ export default {
 
 <style scoped>
 .transition-group > tr {
-  transition: all 0.5s ease;
+  transition: all 0.2s ease;
 }
 
 .transition-group > tr.move {
   background-color: #fffbf2; /* Highlight color when moving */
   transform: translateY(var(--translateY));
-}
-.cursor-move {
-  cursor: move;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -171,9 +147,5 @@ export default {
 
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
-}
-
-.hidden-during-drag {
-  visibility: hidden;
 }
 </style>
