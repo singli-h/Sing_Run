@@ -11,9 +11,9 @@
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Delete</th>
             </tr>
           </thead>
-          <Draggable :list="exerciseRows" class="transition-group" tag="transition-group" @start="dragging = true" @end="onEnd" name="fade">
+          <Draggable :list="exerciseRows" class="transition-group" tag="transition-group" @start="onStart($event)" @end="onEnd" name="fade">
             <template #item="{ element, index }">
-              <tr :key="element.id" class="bg-white">
+              <tr :key="element ? element.id : index" class="bg-white">
                 <!--Draggable icon-->
                 <td class="py-2 px-1 border-b border-gray-200 cursor-move">
                   <img src="/svgs/line-three.svg" alt="draggable">
@@ -23,7 +23,7 @@
                 <td class="py-2 px-4 border-b border-gray-200">
                   <select v-model="element.selectedExercise" class="form-select">
                     <option v-for="exercise in exercises" :key="exercise.id" :value="exercise.id">
-                      {{ exercise.name }}
+                      {{ exercise ? exercise.name : '' }}
                     </option>
                   </select>
                 </td>
@@ -66,6 +66,7 @@ export default {
     const exerciseRows = ref([]);
     //State to track whether dragging is happening
     const dragging = ref(false); 
+    const draggedIndex = ref(null);
 
     onMounted(async () => {
       try {
@@ -74,10 +75,14 @@ export default {
 
         const savedRows = JSON.parse(localStorage.getItem('exerciseRows'));
         if (savedRows && Array.isArray(savedRows)) {
-          exerciseRows.value = savedRows;
+          exerciseRows.value = savedRows.filter(row => row !== null);
         } else {
           exerciseRows.value = exercises.value.map((_, index) => ({ selectedExercise: exercises.value[index]?.id }));
         }
+
+        console.log('exercise:', exerciseRows.value);
+
+
       } catch (error) {
         console.error('An error occurred while fetching exercises:', error);
       }
@@ -100,6 +105,7 @@ export default {
     const onEnd = (event) => {
       const movedItem = exerciseRows.value.splice(event.oldIndex, 1)[0];
       exerciseRows.value.splice(event.newIndex, 0, movedItem);
+      dragging.value = false;
       saveToLocalStorage();
     };
 
@@ -140,6 +146,7 @@ export default {
       addRow,
       deleteRow,
       submitForm,
+      dragging,
     };
   },
 };
@@ -149,6 +156,7 @@ export default {
 .transition-group > tr {
   transition: all 0.5s ease;
 }
+
 .transition-group > tr.move {
   background-color: #fffbf2; /* Highlight color when moving */
   transform: translateY(var(--translateY));
@@ -160,8 +168,12 @@ export default {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.2s;
 }
+
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0;
 }
 
+.hidden-during-drag {
+  visibility: hidden;
+}
 </style>
