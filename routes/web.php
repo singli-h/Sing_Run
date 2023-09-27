@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\TrainingExerciseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +43,16 @@ Route::middleware([
         return Inertia::render('Resource'); // Assuming you have a Resources component
     })->name('resource');
 });
+
+
+//fetch preset exercise
+Route::get('/api/exercises', [ExerciseController::class, 'index'])->name('exercises');
+
+//store the user's custom exercise as preset
+Route::post('/api/exercises', [ExerciseController::class, 'store'])->name('exercises');
+
+//store the user's training exercise
+Route::post('/api/training-exercises', [TrainingExerciseController::class, 'store'])->name('training-exercises');
+
+//get session time and user id
+Route::post('/api/getSession', [TrainingExerciseController::class, 'getSession'])->name('getSession');
