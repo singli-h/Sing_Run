@@ -18,4 +18,10 @@ class Exercise extends Model
     public function exerciseType() {
         return $this->belongsTo(ExerciseType::class);
     }
+
+    public function toResource()
+    {
+        return new \App\Http\Resources\ExerciseResource($this);
+    }
+
 }

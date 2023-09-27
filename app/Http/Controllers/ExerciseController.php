@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ExerciseResource;
 use App\Models\Exercise;
 use App\Models\TrainingExercise;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ExerciseController extends Controller
 {
     public function index()
     {
         // Fetch and return all exercises
-        $exercises = Exercise::all();
-        return inertia('RecordForm', ['exercises' => $exercises]);
+        $exercises = Exercise::with('unit', 'exerciseType')->get();
+        return $exercises;
     }
 
     public function store(Request $request)

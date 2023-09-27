@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\TrainingExerciseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,8 +44,12 @@ Route::middleware([
     })->name('resource');
 });
 
-//fetch preset exercise
-Route::get('/exercises', [WorkoutController::class, 'getExercises']);
 
-//store the user's exercise
-Route::post('/training-exercises', [WorkoutController::class, 'store']);
+//fetch preset exercise
+Route::get('/api/exercises', [ExerciseController::class, 'index'])->name('exercises');
+
+//store the user's custom exercise as preset
+Route::post('/api/exercises', [ExerciseController::class, 'store'])->name('exercises');
+
+//store the user's training exercise
+Route::post('/api/training-exercises', [TrainingExerciseController::class, 'store'])->name('training-exercises');
