@@ -45,90 +45,103 @@
 </template>
 
 <script>
-import { ref, onMounted, defineProps } from 'vue';
-import axios from 'axios';
-
 export default {
-
-  setup() {
-    const props = defineProps({
-      session: String,
-      athlete: String,
-    });
-    const exercises = ref([]);
-    const exerciseRows = ref([]);
-
-    onMounted(async () => {
-      try {
-        const response = await axios.get('/api/exercises');
-        exercises.value = response.data;
-
-        const savedRows = JSON.parse(localStorage.getItem('exerciseRows'));
-        if (savedRows && Array.isArray(savedRows)) {
-          exerciseRows.value = savedRows.filter(row => row !== null);
-        } else {
-          exerciseRows.value = exercises.value.map((_, index) => ({ selectedExercise: exercises.value[index]?.id }));
-        }
-      } catch (error) {
-        console.error('An error occurred while fetching exercises:', error);
-      }
-    });
-
-    const getExerciseUnit = (exerciseId) => {
-      const exercise = exercises.value.find(ex => ex.id === exerciseId);
-      return exercise ? exercise.unit.unit : '';
-    };
-    
-    const getExerciseType = (exerciseId) => {
-      const exercise = exercises.value.find(ex => ex.id === exerciseId);
-      return exercise ? exercise.exercise_type.type : '';
-    };
-
-    const saveToLocalStorage = () => {
-    localStorage.setItem('exerciseRows', JSON.stringify(exerciseRows.value));
-    };
-
-    const addRow = () => {
-      exerciseRows.value.push({
-        id: Date.now(),
-        selectedExercise: exercises.value[0]?.id,
-      });
-      saveToLocalStorage();
-    };
-
-    const deleteRow = (index) => {
-      exerciseRows.value.splice(index, 1);
-      saveToLocalStorage();
-    };
-
-    const submitForm = async () => {
-      // Convert the exerciseRows to the desired format for submission.
-      const formData = {
-        session: props.session,
-        athlete: props.athlete,
-        exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
-      };
-      
-      try {
-        await axios.post('/api/training-sessions', formData);
-        console.log('Form submitted successfully');
-        // Handle redirection or any other logic here.
-      } catch (error) {
-        console.error('An error occurred while submitting the form:', error);
-      }
-    };
-
-    return {
-      exercises,
-      exerciseRows,
-      getExerciseUnit,
-      getExerciseType,
-      addRow,
-      deleteRow,
-      submitForm,
-    };
+  props: {
+    session: String,
+    athlete: String,
+    notes: String,
   },
 };
+</script>
+
+<script setup>
+  import { ref, onMounted, defineProps } from 'vue';
+  import axios from 'axios';
+
+  const { session, athlete, notes } = defineProps();
+  const exercises = ref([]);
+  const exerciseRows = ref([]);
+  const isLoading = ref(false);
+  const message = ref('');
+
+  onMounted(async () => {
+    try {
+      const response = await axios.get('/api/exercises');
+      exercises.value = response.data;
+
+      const savedRows = JSON.parse(localStorage.getItem('exerciseRows'));
+      if (savedRows && Array.isArray(savedRows)) {
+        exerciseRows.value = savedRows.filter(row => row !== null);
+      } else {
+        exerciseRows.value = exercises.value.map((_, index) => ({ selectedExercise: exercises.value[index]?.id }));
+      }
+    } catch (error) {
+      console.error('An error occurred while fetching exercises:', error);
+    }
+  });
+
+  const getExerciseUnit = (exerciseId) => {
+    const exercise = exercises.value.find(ex => ex.id === exerciseId);
+    return exercise ? exercise.unit.unit : '';
+  };
+
+  const getExerciseType = (exerciseId) => {
+    const exercise = exercises.value.find(ex => ex.id === exerciseId);
+    return exercise ? exercise.exercise_type.type : '';
+  };
+
+  const saveToLocalStorage = () => {
+  localStorage.setItem('exerciseRows', JSON.stringify(exerciseRows.value));
+  };
+
+  const addRow = () => {
+    exerciseRows.value.push({
+      id: Date.now(),
+      selectedExercise: exercises.value[0]?.id,
+    });
+    saveToLocalStorage();
+  };
+
+  const deleteRow = (index) => {
+    exerciseRows.value.splice(index, 1);
+    saveToLocalStorage();
+  };
+
+  const submitForm = async () => {
+    // Validate the required data
+    console.log(props);
+    console.log(session, athlete, notes);
+    if (session || athlete || !exerciseRows.value.length) {
+        message.value = 'Please ensure all fields are filled out.';
+        return;
+    }
+
+    // Prepare form data
+    const formData = {
+        session,
+        athlete,
+        notes,
+        exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
+    };
+
+    isLoading.value = true; // Set loading state
+
+    try {
+        await axios.post('/api/training-sessions', formData);
+        
+        // Feedback to user
+        message.value = 'Form submitted successfully!';
+        
+        // Clean-up after successful submission
+        localStorage.removeItem('exerciseRows');
+        exerciseRows.value = [];
+    } catch (error) {
+        console.error('An error occurred while submitting the form:', error);
+        message.value = 'An error occurred. Please try again later.';
+    } finally {
+        isLoading.value = false; // Reset loading state
+    }
+  };
 </script>
 
 <style scoped>
