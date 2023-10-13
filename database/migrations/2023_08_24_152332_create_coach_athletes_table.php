@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('coach_id')->constrained('coaches');
             $table->foreignId('athlete_id')->constrained('athletes');
             $table->primary(['coach_id', 'athlete_id']);
+            $table->timestamps();
         });
     }
 

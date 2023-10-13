@@ -14,11 +14,11 @@
             </div>
             <div>
                 <label for="notes" class="block mb-2 text-xl font-medium text-gray-900">Notes:</label>
-                <textarea id="notes" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                <textarea v-model="notes" id="notes" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
             </div>
         </div>
         <!--bg-gray-200 bg-opacity-25-->
-        <RecordForm :session="session" :athlete="athlete" :notes="notes"/>
+        <RecordForm v-if="session && athlete" :session="session" :athlete="athlete" :notes="notes"/>
     </div>
 </template>
 
@@ -36,10 +36,10 @@ const notes = ref('');
 const fetchData = async () => {
     try {
         const response = await axios.get('/api/getSession');
-        athlete.value = response.data.userID;
+        athlete.value = response.data.athleteId;
         session.value = response.data.now;
     } catch (error) {
-        console.error('An error occurred while fetching user ID and date-time:', error);
+        console.error('An error occurred while fetching athlete ID and date-time:', error);
     }
 };
 

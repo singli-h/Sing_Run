@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('training_sessions', function (Blueprint $table) {
             $table->id();
-            $table->string('notes');
+            $table->string('name');
+            $table->string('notes')->nullable();
             $table->foreignId('athlete_id')->constrained('athletes');
             $table->dateTime('date_time');
+            $table->timestamps();
         });
     }
 

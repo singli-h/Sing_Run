@@ -1,4 +1,9 @@
 <template>
+  @if(session('status'))
+      <div class="alert alert-success">
+          {{ session('status') }}
+      </div>
+  @endif
   <div class="container mx-auto p-4">
         <table v-if="exercises.length > 0" class="min-w-full bg-white border">
           <thead>
@@ -48,7 +53,7 @@
 export default {
   props: {
     session: String,
-    athlete: String,
+    athlete: Number,
     notes: String,
   },
 };
@@ -64,8 +69,17 @@ export default {
   const isLoading = ref(false);
   const message = ref('');
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+              .toISOString()
+              .split('.')[0]
+              .replace('T', ' ');
+  };
+
   onMounted(async () => {
     try {
+      console.log('Inside RecordForm on Mounted:', session, athlete, notes);
       const response = await axios.get('/api/exercises');
       exercises.value = response.data;
 
@@ -109,10 +123,10 @@ export default {
 
   const submitForm = async () => {
     // Validate the required data
-    console.log(props);
-    console.log(session, athlete, notes);
-    if (session || athlete || !exerciseRows.value.length) {
+    console.log('Inside RecordForm submitForm:', session, athlete, notes);
+    if (!session || !athlete || !exerciseRows.value.length) {
         message.value = 'Please ensure all fields are filled out.';
+        console.log(message);
         return;
     }
 
@@ -123,13 +137,21 @@ export default {
         notes,
         exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
     };
+    // Prepare Session Form Data
+
+    const Session_formData = {
+        name: session,
+        date_time: formatDate(session),
+        athlete_id: athlete,
+        notes: notes || 'N/A'
+    };
 
     isLoading.value = true; // Set loading state
-
+    console.log('Loading: ', isLoading.value,Session_formData);
     try {
-        await axios.post('/api/training-sessions', formData);
+        await axios.post('/api/training-sessions', Session_formData);
         
-        // Feedback to user
+        // Feedback to user``
         message.value = 'Form submitted successfully!';
         
         // Clean-up after successful submission

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\TrainingExerciseController;
+use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -54,6 +55,9 @@ Route::post('/api/exercises', [ExerciseController::class, 'store'])->name('exerc
 
 //store the user's training exercise
 Route::post('/api/training-exercises', [TrainingExerciseController::class, 'store'])->name('training-exercises');
+
+//store the user's training session
+Route::post('/api/training-sessions', [TrainingSessionController::class, 'store'])->name('training-sessions');
 
 //get session time and user id
 Route::get('/api/getSession', [UserController::class, 'getSession'])->name('getSession');

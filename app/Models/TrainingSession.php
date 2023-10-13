@@ -11,6 +11,7 @@ class TrainingSession extends Model
 
     protected $fillable = [
         'notes',
+        'name',
         'athlete_id',
         'date_time',
     ];

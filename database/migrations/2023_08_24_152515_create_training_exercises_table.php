@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('reps')->nullable();
             $table->integer('set_rest_time_seconds')->nullable();
             $table->integer('rep_rest_time_seconds')->nullable();
+            $table->timestamps();
         });
     }
 
