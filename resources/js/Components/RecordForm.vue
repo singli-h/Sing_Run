@@ -1,9 +1,4 @@
 <template>
-  @if(session('status'))
-      <div class="alert alert-success">
-          {{ session('status') }}
-      </div>
-  @endif
   <div class="container mx-auto p-4">
         <table v-if="exercises.length > 0" class="min-w-full bg-white border">
           <thead>
@@ -52,7 +47,7 @@
 <script>
 export default {
   props: {
-    session: String,
+    training_session: Date,
     athlete: Number,
     notes: String,
   },
@@ -63,7 +58,7 @@ export default {
   import { ref, onMounted, defineProps } from 'vue';
   import axios from 'axios';
 
-  const { session, athlete, notes } = defineProps();
+  const { training_session, athlete, notes } = defineProps();
   const exercises = ref([]);
   const exerciseRows = ref([]);
   const isLoading = ref(false);
@@ -79,7 +74,7 @@ export default {
 
   onMounted(async () => {
     try {
-      console.log('Inside RecordForm on Mounted:', session, athlete, notes);
+      console.log('Inside RecordForm on Mounted:', training_session, athlete, notes);
       const response = await axios.get('/api/exercises');
       exercises.value = response.data;
 
@@ -123,8 +118,8 @@ export default {
 
   const submitForm = async () => {
     // Validate the required data
-    console.log('Inside RecordForm submitForm:', session, athlete, notes);
-    if (!session || !athlete || !exerciseRows.value.length) {
+    console.log('Inside RecordForm submitForm:', training_session, athlete, notes);
+    if (!training_session || !athlete || !exerciseRows.value.length) {
         message.value = 'Please ensure all fields are filled out.';
         console.log(message);
         return;
@@ -132,7 +127,7 @@ export default {
 
     // Prepare form data
     const formData = {
-        session,
+        training_session,
         athlete,
         notes,
         exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
@@ -140,8 +135,8 @@ export default {
     // Prepare Session Form Data
 
     const Session_formData = {
-        name: session,
-        date_time: formatDate(session),
+        name: training_session,
+        date_time: formatDate(training_session),
         athlete_id: athlete,
         notes: notes || 'N/A'
     };
