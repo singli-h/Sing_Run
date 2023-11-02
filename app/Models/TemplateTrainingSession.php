@@ -11,13 +11,13 @@ class TrainingSession extends Model
 
     protected $fillable = [
         'notes',
-        'athlete_id',
+        'user_id',
         'date_time',
     ];
 
-    public function athlete()
+    public function user()
     {
-        return $this->belongsTo(Athlete::class);
+        return $this->belongsTo(User::class);
     }
 }
 

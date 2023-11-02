@@ -5,8 +5,8 @@
             <tr>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Exercise</th>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Amount</th>
-              <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Unit</th>
-              <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Type</th>
+              <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Sets</th>
+              <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Reps</th>
               <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 ">Delete</th>
             </tr>
           </thead>
@@ -14,7 +14,7 @@
             <tr v-for="(element, index) in exerciseRows" :key="element.id" class="bg-white border">
               <!--Exercise option-->
               <td class="py-2 px-4 border-b border-gray-200">
-                <select v-model="element.selectedExercise" class="form-select">
+                <select v-model="element.selectedExercise" class="form-select rounded-lg w-full">
                   <option v-for="exercise in exercises" :key="exercise.id" :value="exercise.id">
                     {{ exercise ? exercise.name : '' }}
                   </option>
@@ -22,15 +22,19 @@
               </td>
               <!--Amount input-->
               <td class="py-2 px-4 border-b border-gray-200">
-                <input type="number" id="amount" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="getExerciseUnit(element.selectedExercise)" required>
+                <input type="number" v-model="element.output" id="amount" min="1" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="getExerciseUnit(element.selectedExercise)" required>
               </td>
-              <!--Exercise Unit-->
-              <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseUnit(element.selectedExercise) }}</td>
-              <!--Exercise Type-->
-              <td class="py-2 px-4 border-b border-gray-200">{{ getExerciseType(element.selectedExercise) }}</td>
+              <!--Exercise Sets-->
+              <td class="py-2 px-4 border-b border-gray-200">
+                <input type="number" v-model="element.sets" id="sets" min="1" max="30" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+              </td>
+              <!--Exercise Reps-->
+              <td class="py-2 px-4 border-b border-gray-200">
+                <input type="number" v-model="element.reps" id="reps" min="1" max="100" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+              </td>
               <!--delete button-->
               <td class="py-2 px-4 border-b border-gray-200">
-                <button @click="deleteRow(index)" class="bg-red-400 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">Delete</button>
+                <button @click="deleteRow(index)" class="bg-red-400 hover:bg-red-700 text-white font-bold py-1 px-2 rounded w-full focus:outline-none focus:shadow-outline">Delete</button>
               </td>
             </tr>
           </transition-group>
@@ -55,7 +59,7 @@ export default {
 </script>
 
 <script setup>
-  import { ref, onMounted, defineProps } from 'vue';
+  import { ref, onMounted, defineProps, watch } from 'vue';
   import axios from 'axios';
 
   const { training_session, athlete, notes } = defineProps();
@@ -63,6 +67,11 @@ export default {
   const exerciseRows = ref([]);
   const isLoading = ref(false);
   const message = ref('');
+
+  // Any change to exerciseRows will trigger the saveToLocalStorage method, ensuring all changes are stored.
+  watch(exerciseRows, () => {
+    saveToLocalStorage();
+  }, { deep: true });
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -75,6 +84,7 @@ export default {
   onMounted(async () => {
     try {
       console.log('Inside RecordForm on Mounted:', training_session, athlete, notes);
+      // Obtain exercises data
       const response = await axios.get('/api/exercises');
       exercises.value = response.data;
 
@@ -99,6 +109,16 @@ export default {
     return exercise ? exercise.exercise_type.type : '';
   };
 
+  const getExerciseSets = (exerciseId) => {
+    const exercise = exercises.value.find(ex => ex.id === exerciseId);
+    return exercise ? exercise.exercise_type.type : '';
+  };
+
+  const getExerciseReps = (exerciseId) => {
+    const exercise = exercises.value.find(ex => ex.id === exerciseId);
+    return exercise ? exercise.exercise_type.type : '';
+  };
+
   const saveToLocalStorage = () => {
   localStorage.setItem('exerciseRows', JSON.stringify(exerciseRows.value));
   };
@@ -107,6 +127,9 @@ export default {
     exerciseRows.value.push({
       id: Date.now(),
       selectedExercise: exercises.value[0]?.id,
+      output: null, 
+      sets: null,
+      reps: null,
     });
     saveToLocalStorage();
   };
@@ -125,27 +148,46 @@ export default {
         return;
     }
 
+    // Validate every exercise amount being filled
+    const allAmountsFilled = exerciseRows.value.every(row => row.output !== null);
+    if (!allAmountsFilled) {
+        message.value = 'Please ensure all exercise amounts are filled out.';
+        console.log(message);
+        return;
+    }
+
     // Prepare form data
     const formData = {
         training_session,
         athlete,
         notes,
-        exercises: exerciseRows.value.map(row => ({ exercise_id: row.selectedExercise })),
+        exercises: exerciseRows.value.map(row => ({ 
+          exercise_id: row.selectedExercise,
+          output: row.output, 
+          sets: row.sets,
+          reps: row.reps,
+        })),
     };
     // Prepare Session Form Data
 
     const Session_formData = {
-        name: training_session,
         date_time: formatDate(training_session),
         athlete_id: athlete,
-        notes: notes || 'N/A'
+        notes: notes 
     };
 
     isLoading.value = true; // Set loading state
     console.log('Loading: ', isLoading.value,Session_formData);
     try {
-        await axios.post('/api/training-sessions', Session_formData);
-        
+        // Submit session
+        const sessionResponse = await axios.post('/api/training-sessions', Session_formData);
+        const sessionId = sessionResponse.data.id;
+        // Use session id to submit training exercise 
+        for (let exercise of formData.exercises) {
+          exercise.training_session_id = sessionId;
+          console.log(exercise);
+          await axios.post('/api/training-exercises', exercise);
+        }
         // Feedback to user``
         message.value = 'Form submitted successfully!';
         
@@ -158,6 +200,8 @@ export default {
     } finally {
         isLoading.value = false; // Reset loading state
     }
+
+
   };
 </script>
 

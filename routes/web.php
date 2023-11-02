@@ -63,3 +63,4 @@ Route::post('/api/training-sessions', [TrainingSessionController::class, 'store'
 
 //get athlete id by user id
 Route::get('/api/athlete', [AthleteController::class, 'index'])->name('athlete');
+

@@ -23,13 +23,12 @@ class TrainingSessionController extends Controller
         $request->validate([
             'athlete_id' => ['required', 'exists:athletes,id'],
             'date_time' => ['required', 'date'],
-            'notes' => 'nullable',
-            'name' => 'required',
+            'notes' => 'nullable'
         ]);
 
-        TrainingSession::create($request->all());
+        $session = TrainingSession::create($request->all());
 
-        return back()->with('status', 'Training session created successfully!');
+        return response()->json(['id' => $session->id, 'message' => 'Training session created successfully!']);
     }
 
     public function show(TrainingSession $trainingSession)
