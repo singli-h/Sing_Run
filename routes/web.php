@@ -46,6 +46,10 @@ Route::middleware([
     Route::get('/resource', function () {
         return Inertia::render('Resource'); // Assuming you have a Resources component
     })->name('resource');
+
+    Route::get('/data', function () {
+        return Inertia::render('Data'); // Assuming you have a Data component
+    })->name('data');
 });
 
 
@@ -57,6 +61,9 @@ Route::post('/api/exercises', [ExerciseController::class, 'store'])->name('exerc
 
 //store the user's training exercise
 Route::post('/api/training-exercises', [TrainingExerciseController::class, 'store'])->name('training-exercises');
+
+//Get user's exercises to display graph
+Route::get('/api/training-exercise/progress', [TrainingExerciseController::class, 'getProgress']);
 
 //store the user's training session
 Route::post('/api/training-sessions', [TrainingSessionController::class, 'store'])->name('training-sessions');

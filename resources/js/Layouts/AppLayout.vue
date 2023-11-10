@@ -57,6 +57,9 @@ const logout = () => {
                                 <NavLink :href="route('record')" :active="route().current('record')" class="flex-grow text-center text-3xl">
                                     Record
                                 </NavLink>
+                                <NavLink :href="route('data')" :active="route().current('data')" class="flex-grow text-center text-3xl">
+                                    Data
+                                </NavLink>
                             </div>
                         </div>
 
@@ -147,6 +150,9 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('record')" :active="route().current('record')">
                             Record
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('data')" :active="route().current('data')">
+                            Data
                         </ResponsiveNavLink>
                     </div>
 
